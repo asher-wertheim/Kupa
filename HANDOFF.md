@@ -5,7 +5,7 @@ Goal: shared-budget PWA for couples: log an expense in 3 taps, always see "left 
 - **Live:** https://kupa-expense-tracker.netlify.app from `main` (b6ae0e5). PR #6 (Oct 14: new demo, speed audit) and PR #7 (Oct 17: **Hebrew by default again, the name is Kupa in both languages**, English in Settings), both merged with Asher's OK after his preview tests. Checked live after PR #7: title and manifest Kupa, Hebrew, right to left; the demo on Oct 18 (all cycles, 3 partner taps, reload, no page errors).
 - **Branches:** nothing open. New work: a new branch and PR.
 - **Netlify credits:** the cycle reset on Oct 13; no production deploy since, then two production deploys (PR #6 and PR #7: about 30 of 300, check the Netlify dashboard). Each production deploy costs 15. Plan: one PR (deploy previews are free), one merge = 15 credits. Commits that change only notes, `pilot/` or `presentation/` skip the production build; `[skip netlify]` in a commit message skips any build.
-- **Supabase** (project xblsobdgqmwvnbdhowiq): migrations 0001, 0002, 0003 applied. A daily GitHub Action (`supabase-keepalive.yml`, 05:17 UTC, secret `SUPABASE_ANON_KEY`) keeps the free project awake; runs on Oct 12 and 13 were green.
+- **Supabase** (project xblsobdgqmwvnbdhowiq): migrations 0001, 0002, 0003 and the keep-alive one (20261028215044) applied. Since Oct 28 the Supabase GitHub integration checks each push to `main` against this history. A daily GitHub Action (`supabase-keepalive.yml`, 05:17 UTC, secret `SUPABASE_ANON_KEY`) keeps the free project awake; runs on Oct 12 and 13 were green.
 - **Pilot:** postponed by Asher on Oct 14 (tight schedule), a future step. `pilot/` is unchanged.
 - **Reminders:** the Oct 15 one is off. The Oct 17 17:00 UTC (20:00 Israel) pre-presentation checklist still fires, into the old cloud session; it pushes a notification to Asher's phone.
 - Two Claude sessions can work on this repo (Asher's PC and the cloud). Changes reach `main` only through PRs, with Asher's OK.
@@ -35,7 +35,7 @@ Goal: shared-budget PWA for couples: log an expense in 3 taps, always see "left 
 ## Key decisions (why)
 - Demo mode is always on-device, so the presentation never depends on the network. It is rebuilt each day so the numbers fit the day it is shown.
 - Nothing merges to `main` without Asher's OK (normally after he tests the preview). Work on the branch, never on `main`.
-- `0001_init.sql` is exactly what was run; schema changes go in new files (0004...) that Asher runs in the Supabase SQL editor.
+- `0001_init.sql` is exactly what was run. Every file in `supabase/migrations/` must match a version in Supabase's migration history, or the Supabase check on GitHub fails. Apply new changes through the Supabase API (Claude's Supabase tool), which records a timestamp version, and name the file with it (like `20261028215044_keepalive.sql`). The SQL editor records nothing.
 - Seats are retaken with the personal code alone (it changes after each use), never by name. Settings shows the invite code only while the second seat is free.
 - The app opens on the data this device saw last time and checks the seat with the server alongside the first reads.
 - Unit tests run on on-device storage (`test.env` in vite.config.ts) and in Hebrew (`src/test/setup.ts`); English is covered by `lang.test.ts`, the smoke test and `new-visitor.cjs`.
