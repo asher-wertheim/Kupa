@@ -3,7 +3,7 @@
 Kupa's partner sync runs on a free Supabase project. You only do this once. Claude never needs your passwords or the secret key.
 
 ## 1. Create the account and project
-1. Go to https://supabase.com and click **Start your project**. Sign in with **GitHub** (wertheim-asher). It is the quickest.
+1. Go to https://supabase.com and click **Start your project**. Sign in with **GitHub** (asher-wertheim). It is the quickest.
 2. Click **New project**.
    - **Organization:** your personal one, **Free** plan.
    - **Project name:** `kupa`
@@ -29,9 +29,9 @@ Run each file once, in this order. For each one:
 4. You should see **Success. No rows returned**. If you see an error, send Claude a screenshot.
 
 The files:
-1. https://github.com/wertheim-asher/Kupa/blob/main/supabase/migrations/0001_init.sql (tables, security, create and join)
-2. https://github.com/wertheim-asher/Kupa/blob/main/supabase/migrations/0002_harder_codes.sql (12-character personal codes; a clean cut-off after someone moves to a new phone)
-3. https://github.com/wertheim-asher/Kupa/blob/main/supabase/migrations/0003_one_code.sql (the personal code alone brings a member back; the invite code is only for the partner's first join)
+1. https://github.com/asher-wertheim/Kupa/blob/main/supabase/migrations/0001_init.sql (tables, security, create and join)
+2. https://github.com/asher-wertheim/Kupa/blob/main/supabase/migrations/0002_harder_codes.sql (12-character personal codes; a clean cut-off after someone moves to a new phone)
+3. https://github.com/asher-wertheim/Kupa/blob/main/supabase/migrations/0003_one_code.sql (the personal code alone brings a member back; the invite code is only for the partner's first join)
 
 A new file runs on its own: the earlier ones stay as they are. Run it **before** the app version that needs it goes live (0003: before PR #3 is merged; until then the link is on the PR branch, `blob/claude/epic-galileo-bn5lcb` instead of `blob/main`).
 
