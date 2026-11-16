@@ -1,5 +1,6 @@
 # Keeps the free Supabase project "kupa" from pausing after 7 days without activity.
-# Once a day it calls the auth API and runs one real database query (rpc/keepalive, migration 0004).
+# Once a day it calls the auth API and runs 5 real database queries (rpc/keepalive, migration 20261028215044),
+# two seconds apart, so the project sees clear, successful activity and not a single request.
 # The old blocked 401 read did not count as activity: the project was paused on 2026-10-27 anyway.
 # Needs one repo secret: SUPABASE_ANON_KEY (Supabase > Project Settings > API Keys, the anon or publishable key).
 # The run fails, and GitHub emails Asher, if the key is missing or Supabase does not answer.
@@ -24,14 +25,20 @@ jobs:
             echo "::error::Add the SUPABASE_ANON_KEY secret in Settings > Secrets and variables > Actions."
             exit 1
           fi
-          health=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H "apikey: $KEY" "$SUPABASE_URL/auth/v1/health")
-          db=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X POST -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}' "$SUPABASE_URL/rest/v1/rpc/keepalive")
-          echo "auth health: $health, database query: $db"
+          health=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 --retry 2 --retry-delay 2 -H "apikey: $KEY" "$SUPABASE_URL/auth/v1/health")
+          ok=0
+          bad=0
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 --retry 2 --retry-delay 2 -X POST -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}' "$SUPABASE_URL/rest/v1/rpc/keepalive")
+            if [ "$code" = "200" ]; then ok=$((ok + 1)); else bad=$((bad + 1)); echo "query $i returned $code"; fi
+            sleep 2
+          done
+          echo "auth health: $health, database queries: $ok ok, $bad failed"
           if [ "$health" != "200" ]; then
             echo "::error::Supabase did not answer (auth health $health). Check the key, or whether the project is paused."
             exit 1
           fi
-          if [ "$db" != "200" ]; then
-            echo "::error::Database query returned $db. A blocked read does not count as activity."
+          if [ "$bad" != "0" ]; then
+            echo "::error::$bad of 5 database queries failed. A blocked read does not count as activity."
             exit 1
           fi
